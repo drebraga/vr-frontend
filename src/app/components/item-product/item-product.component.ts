@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { Product } from 'src/app/models/product';
 import { ProdutoComponent } from 'src/app/pages/produto/produto.component';
 import { ProductsService } from 'src/app/services/products.service';
@@ -13,13 +14,19 @@ export class ItemProductComponent {
 
   constructor(
     private ProductComponent: ProdutoComponent,
-    private ProductsService: ProductsService
+    private ProductsService: ProductsService,
+    private router: Router
   ) {}
 
   deleteProduct(item: Product) {
     this.ProductsService.deleteProduct(item).subscribe(() => {
       this.ProductComponent.getProducts();
     });
+  }
+
+  redirectToProductEdit(product: Product) {
+    this.ProductsService.setProduct(product);
+    this.router.navigate(['/', 'produto', 'cadastro']);
   }
 
   costFormat(cost?: string): string {

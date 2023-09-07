@@ -8,12 +8,34 @@ import { Product } from '../models/product';
 })
 export class ProductsService {
   url = 'http://localhost:3000/products';
+  private product: Product;
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) {
+    this.product = {
+      id: 0,
+      descricao: '',
+      custo: '',
+      imagem: '',
+    };
+  }
+
+  setProduct(item: Product) {
+    this.product = item;
+  }
+
+  getProduct() {
+    return this.product;
+  }
 
   getProducts(): Observable<Product[]> {
     return this.httpClient
       .get<Product[]>(this.url)
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  getProductById(product: Product): Observable<Product[]> {
+    return this.httpClient
+      .get<Product[]>(this.url + '/id/' + product.id)
       .pipe(retry(1), catchError(this.handleError));
   }
 

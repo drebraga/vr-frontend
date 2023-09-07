@@ -10,7 +10,7 @@
         </div>
         <div class="cell-menu">
             <ng-icon (click)="deleteProduct(item)" class="delete" name="heroTrashSolid"></ng-icon>
-            <ng-icon class="edit" name="heroPencilSolid"></ng-icon>
+            <ng-icon (click)="redirectToProductEdit(item)" class="edit" name="heroPencilSolid"></ng-icon>
         </div>
     </div>
 </li>

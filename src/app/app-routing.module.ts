@@ -6,7 +6,8 @@ import { Error404Component } from './pages/error404/error404.component';
 
 const routes: Routes = [
   { path: 'produto/cadastro', component: CadastroComponent },
-  { path: 'produto', component: ProdutoComponent },  
+  { path: 'produto/cadastro/:id', component: CadastroComponent },
+  { path: 'produto', component: ProdutoComponent },
   { path: '', redirectTo: '/produto', pathMatch: 'full' },
   { path: '**', component: Error404Component },
 ];

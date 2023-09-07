@@ -1,1 +1,49 @@
-<p>cadastro works!</p>
+<header>
+    <div class="header-menu">
+        <ng-icon class="save" name="featherSave"></ng-icon>
+        <ng-icon class="delete" name="heroTrashSolid"></ng-icon>
+    </div>
+    <h1>Cadastro de Produto</h1>
+    <div></div>
+</header>
+
+<main>
+    <div class="left-menu">
+        <form [formGroup]="productForm" class="search">
+            <div class="input">
+                Código
+                <input id="codigo" formControlName="codigo" type="text" />
+            </div>
+            <div class="input description">
+                Descrição
+                <input id="descricao" formControlName="descricao" type="text" />
+                <div *ngIf="productForm.get('descricao')?.hasError('maxlength')">O custo deve conter no maximo 60 caracteres
+                </div>
+            </div>
+            <div class="input">
+                Custo
+                <input id="custo" formControlName="custo" type="text" />
+                <div *ngIf="custoControl?.hasError('pattern')">O custo deve conter apenas números</div>
+                <div *ngIf="productForm.get('custo')?.hasError('maxlength')">O custo deve conter no maximo 13 caracteres
+                </div>
+            </div>
+        </form>
+        <ul class="listHead list">
+            <li>
+                <div class="cell">
+                    Loja
+                </div>
+                <div class="cell">
+                    Preço de Venda (R$)
+                </div>
+            </li>
+        </ul>
+        <ul class="list">
+        </ul>
+    </div>
+    <div class="right-menu">
+        Imagem
+        <img
+            src="https://static.vecteezy.com/system/resources/previews/003/013/029/non_2x/clean-cross-diagonal-line-pattern-free-free-vector.jpg" />
+    </div>
+</main>

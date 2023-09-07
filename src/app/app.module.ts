@@ -8,10 +8,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgIconsModule } from '@ng-icons/core';
 import { heroPlusCircle } from '@ng-icons/heroicons/outline';
 import { heroTrashSolid, heroPencilSolid } from '@ng-icons/heroicons/solid';
+import { featherSave } from '@ng-icons/feather-icons';
+
 import { ProdutoComponent } from './pages/produto/produto.component';
 import { CadastroComponent } from './pages/cadastro/cadastro.component';
 import { Error404Component } from './pages/error404/error404.component';
 import { ItemProductComponent } from './components/item-product/item-product.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -27,12 +31,15 @@ import { ItemProductComponent } from './components/item-product/item-product.com
     AppRoutingModule,
     HttpClientModule,
     NgIconsModule.withIcons({
+      featherSave,
       heroPlusCircle,
       heroTrashSolid,
       heroPencilSolid,
     }),
+    ReactiveFormsModule,
+    FormsModule,
   ],
-  providers: [],
+  providers: [DecimalPipe],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
