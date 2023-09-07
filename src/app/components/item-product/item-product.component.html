@@ -1,0 +1,16 @@
+<li>
+    <div class="cell">
+        {{item.id.toString().padStart(6, '0')}}
+    </div>
+    <div class="cell">
+        {{item.descricao}}
+    </div>
+    <div class="cell price-cell">
+        <div>{{ costFormat(item.custo) }}
+        </div>
+        <div class="cell-menu">
+            <ng-icon (click)="deleteProduct(item)" class="delete" name="heroTrashSolid"></ng-icon>
+            <ng-icon class="edit" name="heroPencilSolid"></ng-icon>
+        </div>
+    </div>
+</li>

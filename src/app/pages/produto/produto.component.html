@@ -1,0 +1,43 @@
+<header>
+    <a routerLink="/produto/cadastro"><ng-icon name="heroPlusCircle"></ng-icon></a>
+    <h1>Consulta de Produto</h1>
+    <div></div>
+</header>
+
+<main>
+    <div class="search">
+        <div class="input">
+            Código
+            <input type="number" />
+        </div>
+        <div class="input description">
+            Descrição
+            <input type="text" />
+        </div>
+        <div class="input">
+            Custo
+            <input type="number" />
+        </div>
+        <div class="input">
+            Preço de Venda
+            <input type="number" />
+        </div>
+    </div>
+    <ul class="listHead list">
+        <li>
+            <div class="cell">
+                Código
+            </div>
+            <div class="cell">
+                Descrição
+            </div>
+            <div class="cell">
+                Custo (R$)
+            </div>
+        </li>
+    </ul>
+    <ul *ngFor="let item of products" class="list">
+        <app-item-product [item]="item"></app-item-product>
+    </ul>
+
+</main>

@@ -1,0 +1,29 @@
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 31vw;
+  max-width: 400px;
+  height: fit-content;
+  min-height: 50px;
+  border: 1px solid #000;
+}
+
+.price-cell {
+  position: relative;
+}
+
+.cell-menu {
+  width: 60px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 26px;
+  position: absolute;
+  right: 10px;
+}
+
+.delete:hover,
+.edit:hover {
+  opacity: 50%;
+  cursor: pointer;
+}

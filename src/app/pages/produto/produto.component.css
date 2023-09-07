@@ -24,31 +24,38 @@ main {
 }
 
 .search {
-  width: 100vw;
+  max-width: 1200px;
+  width: 93vw;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 10px 20px;
 }
 
 .input {
-  font-size: 12px;
+  font-size: 15px;
   display: flex;
   flex-direction: column;
   gap: 5px;
   input {
-    width: 100px;
+    font-size: 15px;
+    height: 40px;
+    width: 150px;
   }
 }
 
 .description {
   input {
-    width: 400px;
+    width: 450px;
   }
 }
 
-.list {
+.listHead {
+  padding: 15px 20px 0 20px;
   margin-top: 15px;
+}
+
+.list {
+  margin: 0;
   li {
     display: flex;
   }
@@ -58,23 +65,9 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 33vw;
+  width: 31vw;
+  max-width: 400px;
   height: fit-content;
   min-height: 50px;
   border: 1px solid #000;
-}
-
-.priceCell {
-  position: relative;
-}
-
-.cell-menu {
-  font-size: 26px;
-  position: absolute;
-  right: 20px;
-}
-
-.delete:hover, .edit:hover {
-  opacity: 50%;
-  cursor: pointer;
 }
