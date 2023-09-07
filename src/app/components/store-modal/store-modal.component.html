@@ -1,0 +1,37 @@
+<ng-container *ngIf="getHidden()">
+    <div class="modal">
+        <header>
+            <div class="header-menu">
+                <ng-icon class="save" name="featherSave"></ng-icon>
+            </div>
+            <h1>Alteração/Inclusão de Preço</h1>
+            <div (click)="toggle()" class="header-menu">
+                <ng-icon class="delete" name="heroXMark"></ng-icon>
+            </div>
+        </header>
+        <form [formGroup]="storeForm" class="content">
+            <div class="input-select">
+                <label class="label" for="loja">Loja*</label>
+                <select formControlName="loja" class="select" id="loja" name="loja">
+                    <option value="">Selecione uma loja</option>
+                    <option value="loja1">Loja 1</option>
+                    <option value="loja2">Loja 2</option>
+                    <option value="loja3">Loja 3</option>
+                    <option value="loja4">Loja 4</option>
+                </select>
+                <div *ngIf="storeForm.get('loja')?.hasError('required')">
+                    Você deve selecionar uma opção.
+                </div>
+            </div>
+            <div class="input-preco">
+                <label class="label" for="preco">Preço de Venda (R$)*</label>
+                <input formControlName="preco" class="preco" id="preco" type="text" />
+                <div *ngIf="storeForm.get('preco')?.hasError('invalidCustoFormat')">Formato de custo inválido(Ex:
+                    1,99)</div>
+                <div *ngIf="storeForm.get('preco')?.hasError('invalidCustoPrecision')">Precisão e/ou escala do custo
+                    inválidas</div>
+            </div>
+        </form>
+    </div>
+    <div (click)="toggle()" class="overlay"></div>
+</ng-container>

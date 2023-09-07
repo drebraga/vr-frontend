@@ -88,4 +88,15 @@ main {
   height: fit-content;
   min-height: 50px;
   border: 1px solid #000;
+  position: relative;
+}
+
+.icon-loja-cell {
+  position: absolute;
+  left: 5px;
+  font-size: 32px;
+  cursor: pointer;
+  :hover {
+    opacity: 50%;
+  }
 }

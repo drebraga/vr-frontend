@@ -3,11 +3,13 @@ import {
   AbstractControl,
   FormBuilder,
   FormGroup,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { Product } from 'src/app/models/product';
 import { ProductsService } from 'src/app/services/products.service';
 import { DecimalPipe } from '@angular/common';
+import { StoreModalService } from 'src/app/services/store-modal.service';
 
 @Component({
   selector: 'app-cadastro',
@@ -22,7 +24,8 @@ export class CadastroComponent implements OnInit {
   constructor(
     private ProductsService: ProductsService,
     private formBuilder: FormBuilder,
-    private decimalPipe: DecimalPipe
+    private decimalPipe: DecimalPipe,
+    private StoreModalService: StoreModalService
   ) {
     this.product = this.ProductsService.getProduct();
     this.productForm = this.formBuilder.group({
@@ -40,7 +43,7 @@ export class CadastroComponent implements OnInit {
       ],
       custo: [
         this.product.custo?.replace('.', ','),
-        [Validators.pattern('^[0-9,]*$'), Validators.maxLength(13)],
+        [Validators.pattern('^[0-9,]*$'), this.custoPrecisionValidator(13, 3)],
       ],
     });
 
@@ -57,5 +60,35 @@ export class CadastroComponent implements OnInit {
       );
       this.custoControl.setValue(formattedValue);
     }
+  }
+
+  custoPrecisionValidator(precision: number, scale: number) {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const custoParts = control.value.toString().split(',');
+
+      if (custoParts.length !== 2) {
+        return { invalidCustoFormat: true };
+      }
+
+      const integerPart = custoParts[0];
+      const decimalPart = custoParts[1];
+
+      if (
+        integerPart.length > precision - scale ||
+        decimalPart.length > scale
+      ) {
+        return { invalidCustoPrecision: true };
+      }
+
+      return null;
+    };
+  }
+
+  toggleModal() {
+    this.StoreModalService.toggleStoreModal();
   }
 }
