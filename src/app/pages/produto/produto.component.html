@@ -5,24 +5,25 @@
 </header>
 
 <main>
-    <div class="search">
+    <form [formGroup]="searchForm" class="search">
         <div class="input">
             Código
-            <input type="number" />
+            <input id="id" name="id" (input)="getProductsBy()" type="text" formControlName="id" />
         </div>
         <div class="input description">
             Descrição
-            <input type="text" />
+            <input id="descricao" name="descricao" type="text" (input)="getProductsBy()" formControlName="descricao" />
         </div>
         <div class="input">
             Custo
-            <input type="number" />
+            <input id="custo" name="custo" type="text" (input)="getProductsBy()" formControlName="custo" />
         </div>
         <div class="input">
             Preço de Venda
-            <input type="number" />
+            <input id="precoVenda" name="precoVenda" (input)="getProductsBy()" type="text"
+                formControlName="precoVenda" />
         </div>
-    </div>
+    </form>
     <ul class="listHead list">
         <li>
             <div class="cell">

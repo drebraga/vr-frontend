@@ -33,27 +33,37 @@ export class ProductsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  getProductsById(id: number): Observable<Product[]> {
+  getProductById(id: number): Observable<Product[]> {
     return this.httpClient
       .get<Product[]>(this.url + '/id/' + id)
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  getProductByDescricao(descricao: string): Observable<Product[]> {
-    return this.httpClient
-      .get<Product[]>(this.url + '/descricao/' + descricao)
-      .pipe(retry(1), catchError(this.handleError));
-  }
+  getProductBySearch(params: {
+    id: string;
+    descricao: string;
+    custo: string;
+    precoVenda: string;
+  }): Observable<Product[]> {
+    console.log(params);
+    let paramsString = '';
+    if (params.id && !isNaN(+params.id)) {
+      paramsString = paramsString + 'id=' + params.id + '&';
+    }
+    if (params.descricao) {
+      paramsString = paramsString + 'descricao=' + params.descricao + '&';
+    }
+    if (params.custo && !isNaN(+params.custo.replace(',', '.'))) {
+      paramsString =
+        paramsString + 'custo=' + params.custo.replace(',', '.') + '&';
+    }
+    if (params.precoVenda && !isNaN(+params.precoVenda.replace(',', '.'))) {
+      paramsString =
+        paramsString + 'precoVenda' + params.precoVenda.replace(',', '.');
+    }
 
-  getProductByCusto(custo: string): Observable<Product[]> {
     return this.httpClient
-      .get<Product[]>(this.url + '/custo/' + custo)
-      .pipe(retry(1), catchError(this.handleError));
-  }
-
-  getProductByPrecoVenda(precoVenda: string): Observable<Product[]> {
-    return this.httpClient
-      .get<Product[]>(this.url + '/precovenda/' + precoVenda)
+      .get<Product[]>(this.url + '/search?' + paramsString)
       .pipe(retry(1), catchError(this.handleError));
   }
 
