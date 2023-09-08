@@ -33,9 +33,27 @@ export class ProductsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  getProductById(product: Product): Observable<Product[]> {
+  getProductsById(id: number): Observable<Product[]> {
     return this.httpClient
-      .get<Product[]>(this.url + '/id/' + product.id)
+      .get<Product[]>(this.url + '/id/' + id)
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  getProductByDescricao(descricao: string): Observable<Product[]> {
+    return this.httpClient
+      .get<Product[]>(this.url + '/descricao/' + descricao)
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  getProductByCusto(custo: string): Observable<Product[]> {
+    return this.httpClient
+      .get<Product[]>(this.url + '/custo/' + custo)
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  getProductByPrecoVenda(precoVenda: string): Observable<Product[]> {
+    return this.httpClient
+      .get<Product[]>(this.url + '/precovenda/' + precoVenda)
       .pipe(retry(1), catchError(this.handleError));
   }
 

@@ -14,10 +14,7 @@
                 <label class="label" for="loja">Loja*</label>
                 <select formControlName="loja" class="select" id="loja" name="loja">
                     <option value="">Selecione uma loja</option>
-                    <option value="loja1">Loja 1</option>
-                    <option value="loja2">Loja 2</option>
-                    <option value="loja3">Loja 3</option>
-                    <option value="loja4">Loja 4</option>
+                    <option *ngFor="let item of stores" value="{{item.id}}">{{item.descricao}}</option>
                 </select>
                 <div *ngIf="storeForm.get('loja')?.hasError('required')">
                     Você deve selecionar uma opção.

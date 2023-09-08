@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -7,22 +7,26 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { Store } from 'src/app/models/store';
 import { StoreModalService } from 'src/app/services/store-modal/store-modal.service';
+import { StoresService } from 'src/app/services/stores/stores.service';
 
 @Component({
   selector: 'app-store-modal',
   templateUrl: './store-modal.component.html',
   styleUrls: ['./store-modal.component.css'],
 })
-export class StoreModalComponent {
+export class StoreModalComponent implements OnInit {
   hidden: boolean;
   storeForm: FormGroup;
   precoVendaControl: AbstractControl | null;
+  stores: Store[] = [];
 
   constructor(
     private StoreModalService: StoreModalService,
     private formBuilder: FormBuilder,
-    private decimalPipe: DecimalPipe
+    private decimalPipe: DecimalPipe,
+    private StoresService: StoresService
   ) {
     this.storeForm = this.formBuilder.group({
       loja: ['', Validators.required],
@@ -33,6 +37,12 @@ export class StoreModalComponent {
     });
     this.hidden = false;
     this.precoVendaControl = this.storeForm.get('preco');
+  }
+
+  ngOnInit() {
+    this.StoresService.getStores().subscribe((stores: Store[]) => {
+      this.stores = stores;
+    });
   }
 
   formatCusto() {
