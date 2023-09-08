@@ -22,6 +22,7 @@ export class CadastroComponent implements OnInit {
   productForm: FormGroup;
   product: FullProduct = { id: 0, descricao: '', lojas: [] };
   custoControl: AbstractControl | null;
+  image: File | null;
 
   constructor(
     private ProductsService: ProductsService,
@@ -45,8 +46,15 @@ export class CadastroComponent implements OnInit {
         this.product.custo?.replace('.', ','),
         [Validators.pattern('^[0-9,]*$'), this.custoPrecisionValidator(13, 3)],
       ],
+      imagem: [
+        this.product.imagem
+          ? this.base64ToFile(this.product.imagem, 'imagem')
+          : null,
+      ],
     });
-
+    this.image = this.product.imagem
+      ? this.base64ToFile(this.product.imagem, 'imagem')
+      : null;
     this.custoControl = this.productForm.get('custo');
   }
 
@@ -75,9 +83,63 @@ export class CadastroComponent implements OnInit {
               this.custoPrecisionValidator(13, 3),
             ],
           ],
+          imagem: [
+            this.product.imagem
+              ? this.base64ToFile(this.product.imagem, 'imagem')
+              : null,
+          ],
         });
       });
     }
+  }
+
+  async resolveFile(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+
+    if (inputElement.files && inputElement.files.length > 0) {
+      const file = inputElement.files[0];
+      this.product.imagem = await this.fileToBase64(file);
+    }
+
+    if (this.image) {
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        this.productForm.get('imagem')!.setValue(e.target.result);
+      };
+
+      reader.readAsDataURL(this.image);
+    }
+  }
+
+  fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        resolve(reader.result as string);
+      };
+
+      reader.onerror = (error) => {
+        reject(error);
+      };
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  base64ToFile(base64: string, filename: string): File {
+    const arr = base64.split(',');
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
   }
 
   formatCusto() {

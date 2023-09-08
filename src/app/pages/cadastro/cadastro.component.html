@@ -53,10 +53,11 @@
         <ul class="list">
         </ul>
     </div>
-    <div class="right-menu">
+    <form [formGroup]="productForm" class="right-menu">
         Imagem
-        <img
-            src="https://static.vecteezy.com/system/resources/previews/003/013/029/non_2x/clean-cross-diagonal-line-pattern-free-free-vector.jpg" />
-    </div>
+        <input id="imagem" name="imagem" formControlName="imagem" (change)="resolveFile($event)" type="file"
+            accept=".jpg, .png" />
+        <img [src]="product.imagem" />
+    </form>
 </main>
 <app-store-modal></app-store-modal>
