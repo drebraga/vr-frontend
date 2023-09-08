@@ -7,7 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { StoreModalService } from 'src/app/services/store-modal.service';
+import { StoreModalService } from 'src/app/services/store-modal/store-modal.service';
 
 @Component({
   selector: 'app-store-modal',
@@ -26,15 +26,20 @@ export class StoreModalComponent {
   ) {
     this.storeForm = this.formBuilder.group({
       loja: ['', Validators.required],
-      preco: ['',
-      [Validators.pattern('^[0-9,]*$'), this.custoPrecisionValidator(13, 3)]],
+      preco: [
+        '',
+        [Validators.pattern('^[0-9,]*$'), this.custoPrecisionValidator(13, 3)],
+      ],
     });
     this.hidden = false;
     this.precoVendaControl = this.storeForm.get('preco');
   }
 
   formatCusto() {
-    if (this.precoVendaControl !== null && this.precoVendaControl.value !== null) {
+    if (
+      this.precoVendaControl !== null &&
+      this.precoVendaControl.value !== null
+    ) {
       const formattedValue = this.decimalPipe.transform(
         this.precoVendaControl.value,
         '1.2-2'

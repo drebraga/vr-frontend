@@ -7,9 +7,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { Product } from 'src/app/models/product';
-import { ProductsService } from 'src/app/services/products.service';
+import { ProductsService } from 'src/app/services/products/products.service';
 import { DecimalPipe } from '@angular/common';
-import { StoreModalService } from 'src/app/services/store-modal.service';
+import { StoreModalService } from 'src/app/services/store-modal/store-modal.service';
 
 @Component({
   selector: 'app-cadastro',
