@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -10,6 +10,8 @@ import { Product } from 'src/app/models/product';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { DecimalPipe } from '@angular/common';
 import { StoreModalService } from 'src/app/services/store-modal/store-modal.service';
+import { StoreProductsService } from 'src/app/services/store-products/store-products.service';
+import { FullProduct } from 'src/app/models/full-product';
 
 @Component({
   selector: 'app-cadastro',
@@ -18,22 +20,20 @@ import { StoreModalService } from 'src/app/services/store-modal/store-modal.serv
 })
 export class CadastroComponent implements OnInit {
   productForm: FormGroup;
-  product: Product;
+  product: FullProduct = { id: 0, descricao: '', lojas: [] };
   custoControl: AbstractControl | null;
 
   constructor(
     private ProductsService: ProductsService,
     private formBuilder: FormBuilder,
     private decimalPipe: DecimalPipe,
-    private StoreModalService: StoreModalService
+    private StoreModalService: StoreModalService,
+    private StoreProductService: StoreProductsService
   ) {
-    this.product = this.ProductsService.getProduct();
     this.productForm = this.formBuilder.group({
       codigo: [
         {
-          value: !this.product.id
-            ? ''
-            : this.product.id.toString().padStart(6, '0'),
+          value: '',
           disabled: true,
         },
       ],
@@ -50,7 +50,35 @@ export class CadastroComponent implements OnInit {
     this.custoControl = this.productForm.get('custo');
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.ProductsService.getProduct().id) {
+      this.StoreProductService.getProduct(
+        this.ProductsService.getProduct().id
+      ).subscribe((product: FullProduct) => {
+        this.product = product;
+
+        this.productForm = this.formBuilder.group({
+          codigo: [
+            {
+              value: this.product.id.toString().padStart(6, '0'),
+              disabled: true,
+            },
+          ],
+          descricao: [
+            this.product.descricao,
+            [Validators.required, Validators.maxLength(60)],
+          ],
+          custo: [
+            this.product.custo?.replace('.', ','),
+            [
+              Validators.pattern('^[0-9,]*$'),
+              this.custoPrecisionValidator(13, 3),
+            ],
+          ],
+        });
+      });
+    }
+  }
 
   formatCusto() {
     if (this.custoControl !== null && this.custoControl.value !== null) {
@@ -86,6 +114,10 @@ export class CadastroComponent implements OnInit {
 
       return null;
     };
+  }
+
+  formatPV(cost: string): string {
+    return cost.replace(/0$/, '').replace('.', ',');
   }
 
   toggleModal() {

@@ -41,6 +41,14 @@
                     Preço de Venda (R$)
                 </div>
             </li>
+            <li *ngFor="let item of product.lojas">
+                <div class="cell loja-cell">
+                    {{item.loja.descricao}}
+                </div>
+                <div class="cell">
+                    {{formatPV(item.precoVenda)}}
+                </div>
+            </li>
         </ul>
         <ul class="list">
         </ul>
