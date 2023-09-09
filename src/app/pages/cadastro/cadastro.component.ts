@@ -6,12 +6,14 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Product } from 'src/app/models/product';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { DecimalPipe } from '@angular/common';
 import { StoreModalService } from 'src/app/services/store-modal/store-modal.service';
 import { StoreProductsService } from 'src/app/services/store-products/store-products.service';
 import { FullProduct } from 'src/app/models/full-product';
+import { StorePriced } from 'src/app/models/store';
+import { Product } from 'src/app/models/product';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cadastro',
@@ -22,15 +24,24 @@ export class CadastroComponent implements OnInit {
   productForm: FormGroup;
   product: FullProduct = { id: 0, descricao: '', lojas: [] };
   custoControl: AbstractControl | null;
-  image: File | null;
+  storeProducts: {
+    precoVenda: string;
+    loja: { id: number; descricao: string };
+  }[] = [];
+  selectedStore: StorePriced;
 
   constructor(
     private ProductsService: ProductsService,
     private formBuilder: FormBuilder,
     private decimalPipe: DecimalPipe,
     private StoreModalService: StoreModalService,
-    private StoreProductService: StoreProductsService
+    private StoreProductService: StoreProductsService,
+    private router: Router
   ) {
+    this.selectedStore = {
+      loja: { id: 0, descricao: '' },
+      precoVenda: '',
+    };
     this.productForm = this.formBuilder.group({
       codigo: [
         {
@@ -52,45 +63,73 @@ export class CadastroComponent implements OnInit {
           : null,
       ],
     });
-    this.image = this.product.imagem
-      ? this.base64ToFile(this.product.imagem, 'imagem')
-      : null;
     this.custoControl = this.productForm.get('custo');
+    this.StoreProductService.updateStoreProducts$.subscribe(() => {
+      this.storeProducts = this.StoreProductService.getStorePrices();
+    });
   }
 
   ngOnInit() {
+    this.StoreProductService.clearStorePrices();
+
     if (this.ProductsService.getProduct().id) {
       this.StoreProductService.getProduct(
         this.ProductsService.getProduct().id
       ).subscribe((product: FullProduct) => {
         this.product = product;
-
-        this.productForm = this.formBuilder.group({
-          codigo: [
-            {
-              value: this.product.id.toString().padStart(6, '0'),
-              disabled: true,
-            },
-          ],
-          descricao: [
-            this.product.descricao,
-            [Validators.required, Validators.maxLength(60)],
-          ],
-          custo: [
-            this.product.custo?.replace('.', ','),
-            [
-              Validators.pattern('^[0-9,]*$'),
-              this.custoPrecisionValidator(13, 3),
-            ],
-          ],
-          imagem: [
-            this.product.imagem
-              ? this.base64ToFile(this.product.imagem, 'imagem')
-              : null,
-          ],
+        this.product.lojas.map((store) => {
+          this.StoreProductService.insertStoreRequisitionObj(store);
         });
+        this.storeProducts = this.StoreProductService.getStorePrices();
+        this.updateFormWithStoreData();
       });
     }
+  }
+
+  private updateFormWithStoreData() {
+    if (this.product) {
+      this.productForm.patchValue({
+        codigo: this.product.id.toString().padStart(6, '0'),
+        descricao: this.product.descricao,
+        custo: this.product.custo?.replace('.', ','),
+        imagem: this.product.imagem
+          ? this.base64ToFile(this.product.imagem, 'imagem')
+          : null,
+      });
+    }
+  }
+
+  saveProduct() {
+    this.StoreProductService.saveRequisitionProductObj(this.productForm);
+  }
+
+  deleteStore(store: {
+    precoVenda: string;
+    loja: { id: number; descricao: string };
+  }) {
+    this.StoreProductService.deleteStoreProduct(store.loja.id);
+    this.StoreProductService.notifyUpdateStoreProducts();
+  }
+
+  deleteProduct() {
+    const productToDelete = {
+      id: this.product.id,
+      descricao: this.product.descricao,
+      imagem: this.product?.imagem,
+      custo: this.product?.custo,
+    } as Product;
+    this.ProductsService.deleteProduct(productToDelete).subscribe(() => {
+      this.router.navigate(['/', 'produto']);
+    });
+  }
+
+  redirectToStoreEdit(store: {
+    precoVenda: string;
+    loja: { id: number; descricao: string };
+  }) {
+    this.selectedStore = store;
+    this.StoreModalService.notifyUpdateStorePriced();
+    this.StoreModalService.toggleStoreModal();
   }
 
   async resolveFile(event: Event) {
@@ -99,16 +138,7 @@ export class CadastroComponent implements OnInit {
     if (inputElement.files && inputElement.files.length > 0) {
       const file = inputElement.files[0];
       this.product.imagem = await this.fileToBase64(file);
-    }
-
-    if (this.image) {
-      const reader = new FileReader();
-
-      reader.onload = (e: any) => {
-        this.productForm.get('imagem')!.setValue(e.target.result);
-      };
-
-      reader.readAsDataURL(this.image);
+      this.StoreProductService.saveImageProductObj(this.product.imagem);
     }
   }
 

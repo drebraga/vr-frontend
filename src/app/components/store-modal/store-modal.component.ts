@@ -1,5 +1,11 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -7,8 +13,9 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Store } from 'src/app/models/store';
+import { Store, StorePriced } from 'src/app/models/store';
 import { StoreModalService } from 'src/app/services/store-modal/store-modal.service';
+import { StoreProductsService } from 'src/app/services/store-products/store-products.service';
 import { StoresService } from 'src/app/services/stores/stores.service';
 
 @Component({
@@ -16,7 +23,8 @@ import { StoresService } from 'src/app/services/stores/stores.service';
   templateUrl: './store-modal.component.html',
   styleUrls: ['./store-modal.component.css'],
 })
-export class StoreModalComponent implements OnInit {
+export class StoreModalComponent implements OnInit, OnChanges {
+  @Input() store: StorePriced;
   hidden: boolean;
   storeForm: FormGroup;
   precoVendaControl: AbstractControl | null;
@@ -24,25 +32,70 @@ export class StoreModalComponent implements OnInit {
 
   constructor(
     private StoreModalService: StoreModalService,
+    private StoreProductService: StoreProductsService,
     private formBuilder: FormBuilder,
     private decimalPipe: DecimalPipe,
     private StoresService: StoresService
   ) {
+    this.hidden = false;
+    this.store = {
+      loja: { id: 0, descricao: '' },
+      precoVenda: '',
+    };
     this.storeForm = this.formBuilder.group({
-      loja: ['', Validators.required],
-      preco: [
+      loja: '',
+      precoVenda: [
         '',
         [Validators.pattern('^[0-9,]*$'), this.custoPrecisionValidator(13, 3)],
       ],
     });
-    this.hidden = false;
-    this.precoVendaControl = this.storeForm.get('preco');
+    this.precoVendaControl = this.storeForm.get('precoVenda');
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['store']) {
+      this.updateFormWithStoreData();
+    }
   }
 
   ngOnInit() {
     this.StoresService.getStores().subscribe((stores: Store[]) => {
       this.stores = stores;
     });
+  }
+
+  private updateFormWithStoreData() {
+    if (this.store) {
+      this.storeForm.patchValue({
+        loja: { id: this.store.loja.id, descricao: this.store.loja.descricao },
+        precoVenda: this.store.precoVenda.replace('.', ','),
+      });
+    }
+    const lojaControl = this.storeForm.get('loja');
+    if (lojaControl && this.store.loja.id) {
+      lojaControl.setValue(this.store.loja);
+    }
+  }
+
+  getStoreProducts() {
+    return this.StoreProductService.getStorePrices();
+  }
+
+  insertStore() {
+    const store = this.storeForm.value as {
+      precoVenda: string;
+      loja: { id: number; descricao: string };
+    };
+    if (
+      store.loja.id &&
+      +store.precoVenda.replace(',', '.') &&
+      !isNaN(store.loja.id) &&
+      !isNaN(+store.precoVenda.replace(',', '.'))
+    ) {
+      this.StoreProductService.insertStoreRequisitionObj(store);
+      this.StoreProductService.notifyUpdateStoreProducts();
+      this.StoreModalService.toggleStoreModal();
+    }
   }
 
   formatCusto() {
@@ -89,6 +142,14 @@ export class StoreModalComponent implements OnInit {
   }
 
   toggle() {
+    const lojaControl = this.storeForm.get('loja');
+    const precoVendaControl = this.storeForm.get('precoVenda');
+
+    if (lojaControl && precoVendaControl) {
+      lojaControl.setValue('');
+      precoVendaControl.setValue('');
+    }
+
     this.StoreModalService.toggleStoreModal();
   }
 }

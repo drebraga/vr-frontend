@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, retry, throwError } from 'rxjs';
 import { Product } from '../../models/product';
+import { RegisterProductObj } from 'src/app/models/register-product-obj';
+import { FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +25,7 @@ export class ProductsService {
     this.product = item;
   }
 
-  getProduct() {
+  getProduct(): Product {
     return this.product;
   }
 

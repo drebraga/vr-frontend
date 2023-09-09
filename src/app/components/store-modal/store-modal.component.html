@@ -2,7 +2,7 @@
     <div class="modal">
         <header>
             <div class="header-menu">
-                <ng-icon class="save" name="featherSave"></ng-icon>
+                <ng-icon (click)="insertStore()" class="save" name="featherSave"></ng-icon>
             </div>
             <h1>Alteração/Inclusão de Preço</h1>
             <div (click)="toggle()" class="header-menu">
@@ -13,19 +13,23 @@
             <div class="input-select">
                 <label class="label" for="loja">Loja*</label>
                 <select formControlName="loja" class="select" id="loja" name="loja">
-                    <option value="">Selecione uma loja</option>
-                    <option *ngFor="let item of stores" value="{{item.id}}">{{item.descricao}}</option>
+                    <option *ngFor="let item of stores" [attr.selected]="item.id === store.loja.id ? 'selected' : null"
+                        [ngValue]=" item">
+                        {{item.descricao}}
+                        {{item.id === store.loja.id}}
+                    </option>
                 </select>
-                <div *ngIf="storeForm.get('loja')?.hasError('required')">
+                <div *ngIf=" storeForm.get('loja')?.hasError('required')">
                     Você deve selecionar uma opção.
                 </div>
             </div>
             <div class="input-preco">
-                <label class="label" for="preco">Preço de Venda (R$)*</label>
-                <input formControlName="preco" class="preco" id="preco" type="text" />
-                <div *ngIf="storeForm.get('preco')?.hasError('invalidCustoFormat')">Formato de custo inválido(Ex:
+                <label class="label" for="precoVenda">Preço de Venda (R$)*</label>
+                <input formControlName="precoVenda" class="preco" id="precoVenda" type="text" />
+                <div *ngIf="storeForm.get('precoVenda')?.hasError('invalidCustoFormat')">Formato de custo inválido(Ex:
                     1,99)</div>
-                <div *ngIf="storeForm.get('preco')?.hasError('invalidCustoPrecision')">Precisão e/ou escala do custo
+                <div *ngIf="storeForm.get('precoVenda')?.hasError('invalidCustoPrecision')">Precisão e/ou escala do
+                    custo
                     inválidas</div>
             </div>
         </form>

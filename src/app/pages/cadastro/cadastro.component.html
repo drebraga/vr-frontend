@@ -1,7 +1,7 @@
 <header>
     <div class="header-menu">
-        <ng-icon class="save" name="featherSave"></ng-icon>
-        <ng-icon class="delete" name="heroTrashSolid"></ng-icon>
+        <ng-icon (click)="saveProduct()" class="save" name="featherSave"></ng-icon>
+        <ng-icon (click)="deleteProduct()" class="delete" name="heroTrashSolid"></ng-icon>
     </div>
     <h1>Cadastro de Produto</h1>
     <div></div>
@@ -41,12 +41,16 @@
                     Preço de Venda (R$)
                 </div>
             </li>
-            <li *ngFor="let item of product.lojas">
+            <li *ngFor="let item of storeProducts">
                 <div class="cell loja-cell">
                     {{item.loja.descricao}}
                 </div>
                 <div class="cell">
                     {{formatPV(item.precoVenda)}}
+                    <div class="cell-menu">
+                        <ng-icon (click)="deleteStore(item)" class="delete" name="heroTrashSolid"></ng-icon>
+                        <ng-icon (click)="redirectToStoreEdit(item)" class="edit" name="heroPencilSolid"></ng-icon>
+                    </div>
                 </div>
             </li>
         </ul>
@@ -60,4 +64,4 @@
         <img [src]="product.imagem" />
     </form>
 </main>
-<app-store-modal></app-store-modal>
+<app-store-modal [store]="selectedStore"></app-store-modal>
