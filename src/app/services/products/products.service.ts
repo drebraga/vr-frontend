@@ -20,7 +20,7 @@ export class ProductsService {
     };
   }
 
-  setProduct(item: Product) {
+  setProduct(item: Product): void {
     this.product = item;
   }
 
@@ -67,19 +67,19 @@ export class ProductsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  saveProduct(productToSave: RegisterProductObj) {
+  saveProduct(productToSave: RegisterProductObj): void {
     this.httpClient.post(this.url, productToSave).subscribe((e) => {
       console.log('Produto salvo com sucesso');
     });
   }
 
-  updateProduct(id: number, productToSave: RegisterProductObj) {
+  updateProduct(id: number, productToSave: RegisterProductObj): void {
     this.httpClient.patch(this.url + '/' + id, productToSave).subscribe((e) => {
       console.log('Produto atualizado com sucesso');
     });
   }
 
-  deleteProduct(product: Product) {
+  deleteProduct(product: Product): Observable<Product> {
     return this.httpClient
       .delete<Product>(this.url + '/' + product.id)
       .pipe(retry(1), catchError(this.handleError));

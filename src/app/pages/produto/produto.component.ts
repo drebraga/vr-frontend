@@ -26,24 +26,24 @@ export class ProdutoComponent implements OnInit {
       precoVenda: [''],
     });
   }
-  ngOnInit() {
+  ngOnInit(): void {
     this.ProductsService.setProduct(this.product);
     this.ProductsService.getProducts().subscribe((products: Product[]) => {
       this.products = products;
     });
   }
 
-  redirectToProductRegister() {
+  redirectToProductRegister(): void {
     this.router.navigate(['/', 'produto', 'cadastro']);
   }
 
-  getProducts() {
+  getProducts(): void {
     this.ProductsService.getProducts().subscribe((products: Product[]) => {
       this.products = products;
     });
   }
 
-  getProductsBy() {
+  getProductsBy(): void {
     if (
       !this.searchForm.value.id &&
       !this.searchForm.value.descricao &&

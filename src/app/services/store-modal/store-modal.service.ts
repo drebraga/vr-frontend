@@ -9,11 +9,11 @@ export class StoreModalService {
 
   constructor() {}
 
-  getStoreModal() {
+  getStoreModal(): boolean {
     return this.hidden;
   }
   
-  toggleStoreModal() {
+  toggleStoreModal(): void {
     this.hidden = !this.hidden;
   }
 }

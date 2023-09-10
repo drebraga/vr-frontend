@@ -4,6 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { Observable, Subject, catchError, retry, throwError } from 'rxjs';
 import { FullProduct } from 'src/app/models/full-product';
 import { RegisterProductObj } from 'src/app/models/register-product-obj';
+import { StorePriced } from 'src/app/models/store';
 
 @Injectable({
   providedIn: 'root',
@@ -14,10 +15,7 @@ export class StoreProductsService {
     descricao: '',
     lojas: [],
   } as RegisterProductObj;
-  storesPrices = [] as {
-    precoVenda: string;
-    loja: { id: number; descricao: string };
-  }[];
+  storesPrices = [] as StorePriced[];
   private updateStoreProducts = new Subject<void>();
   updateStoreProducts$ = this.updateStoreProducts.asObservable();
 
@@ -29,11 +27,11 @@ export class StoreProductsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  getStorePrices() {
+  getStorePrices(): StorePriced[] {
     return this.storesPrices;
   }
 
-  clearStorePrices() {
+  clearStorePrices(): void {
     this.storesPrices = [];
     this.requisitionObject = {
       descricao: '',
@@ -68,7 +66,7 @@ export class StoreProductsService {
       descricao: string;
     };
     precoVenda: string;
-  }) {
+  }): void {
     if (
       store.loja.id &&
       !isNaN(store.loja.id) &&
@@ -92,7 +90,7 @@ export class StoreProductsService {
       };
       precoVenda: string;
     }
-  ) {
+  ): void {
     this.requisitionObject.lojas = this.requisitionObject.lojas.map((s) => {
       if (s.id === store.loja.id) {
         return {
@@ -116,7 +114,7 @@ export class StoreProductsService {
     });
   }
 
-  deleteStoreProduct(id: number) {
+  deleteStoreProduct(id: number): void {
     const filter1 = this.requisitionObject.lojas.filter((e) => e.id !== id);
     const filter2 = this.storesPrices.filter((e) => e.loja.id !== id);
 
@@ -125,7 +123,7 @@ export class StoreProductsService {
     this.storesPrices = [...filter2];
   }
 
-  notifyUpdateStoreProducts() {
+  notifyUpdateStoreProducts(): void {
     this.updateStoreProducts.next();
   }
 

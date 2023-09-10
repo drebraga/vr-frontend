@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -40,8 +40,7 @@ export class CadastroComponent implements OnInit {
     private decimalPipe: DecimalPipe,
     private StoreModalService: StoreModalService,
     private StoreProductService: StoreProductsService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private router: Router
   ) {
     this.selectedStore = {
       loja: { id: 0, descricao: '' },
@@ -57,7 +56,11 @@ export class CadastroComponent implements OnInit {
       descricao: ['', [Validators.required, Validators.maxLength(60)]],
       custo: [
         '',
-        [Validators.pattern('^[0-9,]*$'), this.custoPrecisionValidator(13, 3)],
+        [
+          Validators.pattern('^[0-9,]*$'),
+          this.custoPrecisionValidator(13, 3),
+          this.custoNoDot(),
+        ],
       ],
       imagem:
         typeof this.product.imagem === 'string'
@@ -70,7 +73,7 @@ export class CadastroComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.StoreProductService.clearStorePrices();
 
     if (this.ProductsService.getProduct().id) {
@@ -87,20 +90,7 @@ export class CadastroComponent implements OnInit {
     }
   }
 
-  private updateFormWithStoreData() {
-    if (this.product) {
-      this.productForm.setValue({
-        codigo: this.product.id.toString().padStart(6, '0'),
-        descricao: this.product.descricao,
-        custo: this.product.custo?.replace('.', ','),
-        imagem: this.product.imagem
-          ? this.base64ToFile(this.product.imagem, 'imagem')
-          : null,
-      });
-    }
-  }
-
-  saveOrUpdateProduct() {
+  saveOrUpdateProduct(): void {
     this.productForm.updateValueAndValidity();
 
     const productToSave = this.StoreProductService.saveRequisitionProductObj(
@@ -119,15 +109,7 @@ export class CadastroComponent implements OnInit {
     }
   }
 
-  deleteStore(store: {
-    precoVenda: string;
-    loja: { id: number; descricao: string };
-  }) {
-    this.StoreProductService.deleteStoreProduct(store.loja.id);
-    this.StoreProductService.notifyUpdateStoreProducts();
-  }
-
-  deleteProduct() {
+  deleteProduct(): void {
     const productToDelete = {
       id: this.product.id,
       descricao: this.product.descricao,
@@ -139,15 +121,36 @@ export class CadastroComponent implements OnInit {
     });
   }
 
+  private updateFormWithStoreData(): void {
+    if (this.product) {
+      this.productForm.setValue({
+        codigo: this.product.id.toString().padStart(6, '0'),
+        descricao: this.product.descricao,
+        custo: this.product.custo?.replace('.', ','),
+        imagem: this.product.imagem
+          ? this.base64ToFile(this.product.imagem, 'imagem')
+          : null,
+      });
+    }
+  }
+
+  deleteStore(store: {
+    precoVenda: string;
+    loja: { id: number; descricao: string };
+  }): void {
+    this.StoreProductService.deleteStoreProduct(store.loja.id);
+    this.StoreProductService.notifyUpdateStoreProducts();
+  }
+
   redirectToStoreEdit(store: {
     precoVenda: string;
     loja: { id: number; descricao: string };
-  }) {
+  }): void {
     this.selectedStore = store;
     this.StoreModalService.toggleStoreModal();
   }
 
-  async resolveFile(event: Event) {
+  async resolveFile(event: Event): Promise<void> {
     const inputElement = event.target as HTMLInputElement;
 
     if (inputElement.files && inputElement.files.length > 0) {
@@ -187,7 +190,7 @@ export class CadastroComponent implements OnInit {
     return new File([u8arr], filename, { type: mime });
   }
 
-  formatCusto() {
+  formatCusto(): void {
     if (this.custoControl !== null && this.custoControl.value !== null) {
       const formattedValue = this.decimalPipe.transform(
         this.custoControl.value,
@@ -197,7 +200,10 @@ export class CadastroComponent implements OnInit {
     }
   }
 
-  custoPrecisionValidator(precision: number, scale: number) {
+  custoPrecisionValidator(
+    precision: number,
+    scale: number
+  ): ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) {
         return null;
@@ -205,7 +211,11 @@ export class CadastroComponent implements OnInit {
 
       const custoParts = control.value.toString().split(',');
 
-      if (custoParts.length !== 2) {
+      if (custoParts.length === 1) {
+        return null;
+      }
+
+      if (!/^-?\d+(,\d*)?$/.test(control.value)) {
         return { invalidCustoFormat: true };
       }
 
@@ -223,11 +233,25 @@ export class CadastroComponent implements OnInit {
     };
   }
 
+  custoNoDot(): ValidationErrors | null {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      if (control.value.toString().includes('.')) {
+        return { invalidCustoPrecision: true };
+      }
+
+      return null;
+    };
+  }
+
   formatPV(cost: string): string {
     return cost.replace(/0$/, '').replace('.', ',');
   }
 
-  toggleModal() {
+  toggleModal(): void {
     this.StoreModalService.toggleStoreModal();
   }
 }
