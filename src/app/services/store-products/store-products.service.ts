@@ -41,8 +41,8 @@ export class StoreProductsService {
     };
   }
 
-  saveRequisitionProductObj(productForm: FormGroup): void {
-    if (this.requisitionObject.lojas.length < 1) return;
+  saveRequisitionProductObj(productForm: FormGroup): RegisterProductObj | null {
+    if (this.requisitionObject.lojas.length < 1) return null;
     if (productForm.value.descricao) {
       this.requisitionObject.descricao = productForm.value.descricao;
     }
@@ -52,7 +52,8 @@ export class StoreProductsService {
     ) {
       this.requisitionObject.custo = +productForm.value.custo.replace(',', '.');
     }
-    console.log(this.requisitionObject);
+    
+    return this.requisitionObject;
   }
 
   saveImageProductObj(image: string): void {

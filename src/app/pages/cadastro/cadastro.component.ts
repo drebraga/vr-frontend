@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -22,7 +22,11 @@ import { Router } from '@angular/router';
 })
 export class CadastroComponent implements OnInit {
   productForm: FormGroup;
-  product: FullProduct = { id: 0, descricao: '', lojas: [] };
+  product: FullProduct = {
+    id: 0,
+    descricao: '',
+    lojas: [],
+  };
   custoControl: AbstractControl | null;
   storeProducts: {
     precoVenda: string;
@@ -36,7 +40,8 @@ export class CadastroComponent implements OnInit {
     private decimalPipe: DecimalPipe,
     private StoreModalService: StoreModalService,
     private StoreProductService: StoreProductsService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.selectedStore = {
       loja: { id: 0, descricao: '' },
@@ -49,19 +54,15 @@ export class CadastroComponent implements OnInit {
           disabled: true,
         },
       ],
-      descricao: [
-        this.product.descricao,
-        [Validators.required, Validators.maxLength(60)],
-      ],
+      descricao: ['', [Validators.required, Validators.maxLength(60)]],
       custo: [
-        this.product.custo?.replace('.', ','),
+        '',
         [Validators.pattern('^[0-9,]*$'), this.custoPrecisionValidator(13, 3)],
       ],
-      imagem: [
-        this.product.imagem
+      imagem:
+        typeof this.product.imagem === 'string'
           ? this.base64ToFile(this.product.imagem, 'imagem')
           : null,
-      ],
     });
     this.custoControl = this.productForm.get('custo');
     this.StoreProductService.updateStoreProducts$.subscribe(() => {
@@ -88,7 +89,7 @@ export class CadastroComponent implements OnInit {
 
   private updateFormWithStoreData() {
     if (this.product) {
-      this.productForm.patchValue({
+      this.productForm.setValue({
         codigo: this.product.id.toString().padStart(6, '0'),
         descricao: this.product.descricao,
         custo: this.product.custo?.replace('.', ','),
@@ -99,8 +100,23 @@ export class CadastroComponent implements OnInit {
     }
   }
 
-  saveProduct() {
-    this.StoreProductService.saveRequisitionProductObj(this.productForm);
+  saveOrUpdateProduct() {
+    this.productForm.updateValueAndValidity();
+
+    const productToSave = this.StoreProductService.saveRequisitionProductObj(
+      this.productForm
+    );
+
+    //inserir os filtros para salvar produto e chamar toast
+
+    if (this.productForm.get('codigo')?.value && productToSave) {
+      const id = this.productForm.get('codigo')?.value;
+      this.ProductsService.updateProduct(id, productToSave);
+      this.router.navigate(['/', 'produto']);
+    } else if (productToSave) {
+      this.ProductsService.saveProduct(productToSave);
+      this.router.navigate(['/', 'produto']);
+    }
   }
 
   deleteStore(store: {

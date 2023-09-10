@@ -66,7 +66,7 @@ export class StoreModalComponent implements OnInit, OnChanges {
 
   private updateFormWithStoreData() {
     if (this.store) {
-      this.storeForm.patchValue({
+      this.storeForm.setValue({
         loja: { id: this.store.loja.id, descricao: this.store.loja.descricao },
         precoVenda: this.store.precoVenda.replace('.', ','),
       });

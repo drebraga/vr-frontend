@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, retry, throwError } from 'rxjs';
 import { Product } from '../../models/product';
 import { RegisterProductObj } from 'src/app/models/register-product-obj';
-import { FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root',
@@ -47,7 +46,6 @@ export class ProductsService {
     custo: string;
     precoVenda: string;
   }): Observable<Product[]> {
-    console.log(params);
     let paramsString = '';
     if (params.id && !isNaN(+params.id)) {
       paramsString = paramsString + 'id=' + params.id + '&';
@@ -67,6 +65,18 @@ export class ProductsService {
     return this.httpClient
       .get<Product[]>(this.url + '/search?' + paramsString)
       .pipe(retry(1), catchError(this.handleError));
+  }
+
+  saveProduct(productToSave: RegisterProductObj) {
+    this.httpClient.post(this.url, productToSave).subscribe((e) => {
+      console.log('Produto salvo com sucesso');
+    });
+  }
+
+  updateProduct(id: number, productToSave: RegisterProductObj) {
+    this.httpClient.patch(this.url + '/' + id, productToSave).subscribe((e) => {
+      console.log('Produto atualizado com sucesso');
+    });
   }
 
   deleteProduct(product: Product) {
