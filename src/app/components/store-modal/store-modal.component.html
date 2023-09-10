@@ -12,11 +12,10 @@
         <form [formGroup]="storeForm" class="content">
             <div class="input-select">
                 <label class="label" for="loja">Loja*</label>
-                <select formControlName="loja" class="select" id="loja" name="loja">
-                    <option *ngFor="let item of stores" [attr.selected]="item.id === store.loja.id ? 'selected' : null"
-                        [ngValue]=" item">
+                <select formControlName="loja" class="select">
+                    <option *ngFor="let item of stores" [attr.selected]="item.id === store.loja.id ? true : null"
+                        [ngValue]="item">
                         {{item.descricao}}
-                        {{item.id === store.loja.id}}
                     </option>
                 </select>
                 <div *ngIf=" storeForm.get('loja')?.hasError('required')">

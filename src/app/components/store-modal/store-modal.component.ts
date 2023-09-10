@@ -17,6 +17,7 @@ import { Store, StorePriced } from 'src/app/models/store';
 import { StoreModalService } from 'src/app/services/store-modal/store-modal.service';
 import { StoreProductsService } from 'src/app/services/store-products/store-products.service';
 import { StoresService } from 'src/app/services/stores/stores.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-store-modal',
@@ -35,7 +36,8 @@ export class StoreModalComponent implements OnInit, OnChanges {
     private StoreProductService: StoreProductsService,
     private formBuilder: FormBuilder,
     private decimalPipe: DecimalPipe,
-    private StoresService: StoresService
+    private StoresService: StoresService,
+    private toastr: ToastrService
   ) {
     this.hidden = false;
     this.store = {
@@ -43,10 +45,14 @@ export class StoreModalComponent implements OnInit, OnChanges {
       precoVenda: '',
     };
     this.storeForm = this.formBuilder.group({
-      loja: '',
+      loja: this.store.loja,
       precoVenda: [
-        '',
-        [Validators.pattern('^[0-9,]*$'), this.custoPrecisionValidator(13, 3)],
+        this.store.precoVenda,
+        [
+          Validators.pattern('^[0-9,]*$'),
+          this.custoPrecisionValidator(13, 3),
+          this.custoNoDot(),
+        ],
       ],
     });
     this.precoVendaControl = this.storeForm.get('precoVenda');
@@ -58,14 +64,15 @@ export class StoreModalComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.StoresService.getStores().subscribe((stores: Store[]) => {
       this.stores = stores;
     });
   }
 
-  private updateFormWithStoreData() {
-    if (this.store) {
+  private updateFormWithStoreData(): void {
+    if (this.store.loja.id) {
+      this.storeForm.updateValueAndValidity();
       this.storeForm.setValue({
         loja: { id: this.store.loja.id, descricao: this.store.loja.descricao },
         precoVenda: this.store.precoVenda.replace('.', ','),
@@ -77,28 +84,65 @@ export class StoreModalComponent implements OnInit, OnChanges {
     }
   }
 
-  getStoreProducts() {
+  private clearFormData(): void {
+    this.storeForm.setValue({
+      loja: '',
+      precoVenda: '',
+    });
+  }
+
+  getStoreProducts(): StorePriced[] {
     return this.StoreProductService.getStorePrices();
   }
 
-  insertStore() {
-    const store = this.storeForm.value as {
+  insertStore(): void {
+    const storeToInsert = this.storeForm.value as {
       precoVenda: string;
       loja: { id: number; descricao: string };
     };
+    const storesAlreadyPriced = this.StoreProductService.getStorePrices().some(
+      (s) => s.loja.id === storeToInsert.loja.id
+    );
+    const conditional =
+      storeToInsert.loja.id &&
+      +storeToInsert.precoVenda.replace(',', '.') &&
+      !isNaN(storeToInsert.loja.id) &&
+      !isNaN(+storeToInsert.precoVenda.replace(',', '.')) &&
+      !this.storeForm.get('precoVenda')?.hasError('invalidCustoFormat') &&
+      !this.storeForm.get('precoVenda')?.hasError('invalidCustoPrecision');
     if (
-      store.loja.id &&
-      +store.precoVenda.replace(',', '.') &&
-      !isNaN(store.loja.id) &&
-      !isNaN(+store.precoVenda.replace(',', '.'))
+      this.store.loja.id &&
+      (!storesAlreadyPriced || storeToInsert.loja.id === this.store.loja.id) &&
+      conditional
     ) {
-      this.StoreProductService.insertStoreRequisitionObj(store);
+      this.StoreProductService.updateStoreRequisitionObj(
+        this.store.loja.id,
+        storeToInsert
+      );
       this.StoreProductService.notifyUpdateStoreProducts();
       this.StoreModalService.toggleStoreModal();
+      this.clearFormData();
+      this.toastr.success('Loja atualizada!');
+      return;
+    } else if (!storesAlreadyPriced && conditional) {
+      this.StoreProductService.insertStoreRequisitionObj(storeToInsert);
+      this.StoreProductService.notifyUpdateStoreProducts();
+      this.StoreModalService.toggleStoreModal();
+      this.clearFormData();
+      this.toastr.success('Loja adicionada!');
+      return;
+    } else if (storesAlreadyPriced) {
+      this.toastr.error(
+        'Não é permitido mais que um preço de venda para a mesma loja.'
+      );
+    } else {
+      this.toastr.error(
+        'Um ou mais campos obrigatórios não foram preenchidos corretamente.'
+      );
     }
   }
 
-  formatCusto() {
+  formatCusto(): void {
     if (
       this.precoVendaControl !== null &&
       this.precoVendaControl.value !== null
@@ -111,7 +155,10 @@ export class StoreModalComponent implements OnInit, OnChanges {
     }
   }
 
-  custoPrecisionValidator(precision: number, scale: number) {
+  custoPrecisionValidator(
+    precision: number,
+    scale: number
+  ): ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) {
         return null;
@@ -119,7 +166,11 @@ export class StoreModalComponent implements OnInit, OnChanges {
 
       const custoParts = control.value.toString().split(',');
 
-      if (custoParts.length !== 2) {
+      if (custoParts.length === 1) {
+        return null;
+      }
+
+      if (!/^-?\d+(,\d*)?$/.test(control.value)) {
         return { invalidCustoFormat: true };
       }
 
@@ -137,19 +188,26 @@ export class StoreModalComponent implements OnInit, OnChanges {
     };
   }
 
-  getHidden() {
+  custoNoDot(): ValidationErrors | null {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      if (control.value.toString().includes('.')) {
+        return { invalidCustoPrecision: true };
+      }
+
+      return null;
+    };
+  }
+
+  getHidden(): boolean {
     return this.StoreModalService.getStoreModal();
   }
 
-  toggle() {
-    const lojaControl = this.storeForm.get('loja');
-    const precoVendaControl = this.storeForm.get('precoVenda');
-
-    if (lojaControl && precoVendaControl) {
-      lojaControl.setValue('');
-      precoVendaControl.setValue('');
-    }
-
+  toggle(): void {
+    this.clearFormData();
     this.StoreModalService.toggleStoreModal();
   }
 }

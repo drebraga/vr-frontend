@@ -10,9 +10,11 @@ import { NgIconsModule } from '@ng-icons/core';
 import { heroPlusCircle, heroXMark } from '@ng-icons/heroicons/outline';
 import { heroTrashSolid, heroPencilSolid } from '@ng-icons/heroicons/solid';
 import { featherSave } from '@ng-icons/feather-icons';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // modules
 import { AppRoutingModule } from './app-routing.module';
+import { ToastrModule } from 'ngx-toastr';
 
 //components
 import { StoreModalComponent } from './components/store-modal/store-modal.component';
@@ -33,6 +35,7 @@ import { Error404Component } from './pages/error404/error404.component';
     StoreModalComponent,
   ],
   imports: [
+    BrowserAnimationsModule,
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
@@ -45,6 +48,7 @@ import { Error404Component } from './pages/error404/error404.component';
     }),
     ReactiveFormsModule,
     FormsModule,
+    ToastrModule.forRoot(),
   ],
   providers: [DecimalPipe, StoreModalComponent],
   bootstrap: [AppComponent],

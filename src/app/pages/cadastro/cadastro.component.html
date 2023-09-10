@@ -34,7 +34,10 @@
         <ul class="listHead list">
             <li>
                 <div class="cell loja-cell">
-                    <ng-icon (click)="toggleModal();" class="icon-loja-cell" name="heroPlusCircle"></ng-icon>
+                    <ng-icon (click)="redirectToStoreEdit({
+                        loja: { id: 0, descricao: '' },
+                        precoVenda: '',
+                      });" class="icon-loja-cell" name="heroPlusCircle"></ng-icon>
                     Loja
                 </div>
                 <div class="cell">

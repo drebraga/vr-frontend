@@ -52,7 +52,7 @@ export class StoreProductsService {
     ) {
       this.requisitionObject.custo = +productForm.value.custo.replace(',', '.');
     }
-    
+
     return this.requisitionObject;
   }
 
@@ -81,6 +81,39 @@ export class StoreProductsService {
       ];
       this.storesPrices = [...this.storesPrices, store];
     }
+  }
+
+  updateStoreRequisitionObj(
+    id: number,
+    store: {
+      loja: {
+        id: number;
+        descricao: string;
+      };
+      precoVenda: string;
+    }
+  ) {
+    this.requisitionObject.lojas = this.requisitionObject.lojas.map((s) => {
+      if (s.id === store.loja.id) {
+        return {
+          id: store.loja.id,
+          precoVenda: +store.precoVenda.replace(',', '.'),
+        };
+      } else {
+        return s;
+      }
+    });
+
+    this.storesPrices = this.storesPrices.map((s) => {
+      if (s.loja.id === store.loja.id) {
+        return {
+          loja: { id: store.loja.id, descricao: store.loja.descricao },
+          precoVenda: store.precoVenda,
+        };
+      } else {
+        return s;
+      }
+    });
   }
 
   deleteStoreProduct(id: number) {

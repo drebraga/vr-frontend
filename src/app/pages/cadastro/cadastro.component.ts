@@ -144,7 +144,6 @@ export class CadastroComponent implements OnInit {
     loja: { id: number; descricao: string };
   }) {
     this.selectedStore = store;
-    this.StoreModalService.notifyUpdateStorePriced();
     this.StoreModalService.toggleStoreModal();
   }
 

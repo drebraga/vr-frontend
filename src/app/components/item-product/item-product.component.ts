@@ -18,13 +18,13 @@ export class ItemProductComponent {
     private router: Router
   ) {}
 
-  deleteProduct(item: Product) {
+  deleteProduct(item: Product): void {
     this.ProductsService.deleteProduct(item).subscribe(() => {
       this.ProductComponent.getProducts();
     });
   }
 
-  redirectToProductEdit(product: Product) {
+  redirectToProductEdit(product: Product): void {
     this.ProductsService.setProduct(product);
     this.router.navigate(['/', 'produto', 'cadastro']);
   }
