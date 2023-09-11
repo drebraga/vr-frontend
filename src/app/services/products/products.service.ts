@@ -1,6 +1,12 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, retry, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  catchError,
+  retry,
+  throwError,
+} from 'rxjs';
 import { Product } from '../../models/product';
 import { RegisterProductObj } from 'src/app/models/register-product-obj';
 
@@ -67,16 +73,14 @@ export class ProductsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  saveProduct(productToSave: RegisterProductObj): void {
-    this.httpClient.post(this.url, productToSave).subscribe((e) => {
-      console.log('Produto salvo com sucesso');
-    });
+  saveProduct(productToSave: RegisterProductObj): Observable<number> {
+    return this.httpClient.post<number>(this.url, productToSave);
   }
 
   updateProduct(id: number, productToSave: RegisterProductObj): void {
-    this.httpClient.patch(this.url + '/' + id, productToSave).subscribe((e) => {
-      console.log('Produto atualizado com sucesso');
-    });
+    this.httpClient
+      .patch(this.url + '/' + id, productToSave)
+      .subscribe((e) => {});
   }
 
   deleteProduct(product: Product): Observable<Product> {

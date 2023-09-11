@@ -119,10 +119,14 @@ export class CadastroComponent implements OnInit {
     if (this.productForm.get('codigo')?.value && productToSave) {
       const id = this.productForm.get('codigo')?.value;
       this.ProductsService.updateProduct(id, productToSave);
-      this.router.navigate(['/', 'produto']);
+      this.toastr.success('Produto atualizado com sucesso.');
     } else if (productToSave) {
-      this.ProductsService.saveProduct(productToSave);
-      this.router.navigate(['/', 'produto']);
+      this.ProductsService.saveProduct(productToSave).subscribe((productId) => {
+        this.productForm
+          .get('codigo')
+          ?.setValue(productId.toString().padStart(6, '0'));
+      });
+      this.toastr.success('Produto criado com sucesso.');
     }
   }
 
