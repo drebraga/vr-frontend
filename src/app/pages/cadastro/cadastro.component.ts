@@ -14,6 +14,7 @@ import { FullProduct } from 'src/app/models/full-product';
 import { StorePriced } from 'src/app/models/store';
 import { Product } from 'src/app/models/product';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-cadastro',
@@ -40,7 +41,8 @@ export class CadastroComponent implements OnInit {
     private decimalPipe: DecimalPipe,
     private StoreModalService: StoreModalService,
     private StoreProductService: StoreProductsService,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {
     this.selectedStore = {
       loja: { id: 0, descricao: '' },
@@ -62,10 +64,12 @@ export class CadastroComponent implements OnInit {
           this.custoNoDot(),
         ],
       ],
-      imagem:
+      imagem: [
         typeof this.product.imagem === 'string'
           ? this.base64ToFile(this.product.imagem, 'imagem')
           : null,
+        [this.imageExtensionValidator()],
+      ],
     });
     this.custoControl = this.productForm.get('custo');
     this.StoreProductService.updateStoreProducts$.subscribe(() => {
@@ -97,7 +101,20 @@ export class CadastroComponent implements OnInit {
       this.productForm
     );
 
+    const conditions =
+      !productToSave ||
+      this.productForm.get('descricao')?.hasError('maxlength') ||
+      this.productForm.get('imagem')?.hasError('invalidImageExtension') ||
+      this.productForm.get('custo')?.hasError('invalidCustoFormat') ||
+      this.productForm.get('custo')?.hasError('invalidCustoPrecision') ||
+      this.custoControl?.hasError('pattern');
+
     //inserir os filtros para salvar produto e chamar toast
+    if (conditions) {
+      this.toastr.error(
+        'Um ou mais campos obrigatórios não foram preenchidos corretamente.'
+      );
+    }
 
     if (this.productForm.get('codigo')?.value && productToSave) {
       const id = this.productForm.get('codigo')?.value;
@@ -241,6 +258,26 @@ export class CadastroComponent implements OnInit {
 
       if (control.value.toString().includes('.')) {
         return { invalidCustoPrecision: true };
+      }
+
+      return null;
+    };
+  }
+
+  imageExtensionValidator(): ValidationErrors {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const allowedExtensions = ['jpg', 'png']; // Extensões permitidas
+
+      const imageName = control.value as string;
+
+      const fileExtension = imageName.split('.').pop()?.toLowerCase();
+
+      if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+        return { invalidImageExtension: true };
       }
 
       return null;

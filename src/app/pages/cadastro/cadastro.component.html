@@ -17,18 +17,10 @@
             <div class="input description">
                 Descrição
                 <input id="descricao" formControlName="descricao" type="text" />
-                <div *ngIf="productForm.get('descricao')?.hasError('maxlength')">O custo deve conter no maximo 60
-                    caracteres
-                </div>
             </div>
             <div class="input">
                 Custo
                 <input id="custo" formControlName="custo" type="text" />
-                <div *ngIf="custoControl?.hasError('pattern')">O custo deve conter apenas números</div>
-                <div *ngIf="productForm.get('custo')?.hasError('invalidCustoFormat')">Formato de custo inválido(Ex:
-                    1,99)</div>
-                <div *ngIf="productForm.get('custo')?.hasError('invalidCustoPrecision')">Precisão e/ou escala do custo
-                    inválidas</div>
             </div>
         </form>
         <ul class="listHead list">

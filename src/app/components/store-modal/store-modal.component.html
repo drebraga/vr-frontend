@@ -13,23 +13,15 @@
             <div class="input-select">
                 <label class="label" for="loja">Loja*</label>
                 <select formControlName="loja" class="select">
-                    <option *ngFor="let item of stores" [attr.selected]="item.id === store.loja.id ? true : null"
+                    <option *ngFor="let item of stores"
                         [ngValue]="item">
                         {{item.descricao}}
                     </option>
                 </select>
-                <div *ngIf=" storeForm.get('loja')?.hasError('required')">
-                    Você deve selecionar uma opção.
-                </div>
             </div>
             <div class="input-preco">
                 <label class="label" for="precoVenda">Preço de Venda (R$)*</label>
                 <input formControlName="precoVenda" class="preco" id="precoVenda" type="text" />
-                <div *ngIf="storeForm.get('precoVenda')?.hasError('invalidCustoFormat')">Formato de custo inválido(Ex:
-                    1,99)</div>
-                <div *ngIf="storeForm.get('precoVenda')?.hasError('invalidCustoPrecision')">Precisão e/ou escala do
-                    custo
-                    inválidas</div>
             </div>
         </form>
     </div>
